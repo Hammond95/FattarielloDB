@@ -136,8 +136,10 @@ func handleConnection(node Node, conn *net.TCPConn) {
 
 	msg := string(buf)
 
+	// Accepts raw messages from tcp
 	if strings.Contains(msg, "|") {
 		cmd := strings.Split(msg, "|")
+		fmt.Printf("command: %v\n", cmd)
 		switch cmd[0] {
 		case "SEND":
 			node.sendMessage(cmd[2], cmd[1])
