@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 )
 
 // NodeActions define what a node can do
@@ -85,7 +86,7 @@ func (n Node) receiveMessage() {
 		}
 		fmt.Println("connected to: ", conn.RemoteAddr())
 
-		go handleConnection(conn)
+		go handleConnection(n, conn)
 	}
 }
 
@@ -111,7 +112,7 @@ func (n Node) createLocalListener() *net.TCPListener {
 // handleConnection reads request from connection
 // with conn.Read() then write response using
 // conn.Write().  Then the connection is closed.
-func handleConnection(conn *net.TCPConn) {
+func handleConnection(node Node, conn *net.TCPConn) {
 	defer conn.Close() // clean up when done
 
 	buf := make([]byte, 1024)
@@ -133,15 +134,29 @@ func handleConnection(conn *net.TCPConn) {
 		return
 	}
 
-	fmt.Println(string(buf))
+	msg := string(buf)
+
+	if strings.Contains(msg, "|") {
+		cmd := strings.Split(msg, "|")
+		switch cmd[0] {
+		case "SEND":
+			node.sendMessage(cmd[2], cmd[1])
+		default:
+			fmt.Println(msg)
+		}
+	} else {
+		fmt.Printf("Printing Anyway: %v\n", msg)
+	}
 }
 
+// PrintInfo prints information about the node.
 func (n Node) PrintInfo() {
 	fmt.Printf("Node {%v}\n", n.NodeID)
 	fmt.Printf("running at %v\n", n.NodeAddress)
 	fmt.Printf("has following peers: %v\n", n.PeersAddresses)
 }
 
+// Run starts the node process
 func (n Node) Run() {
 	n.receiveMessage()
 }
