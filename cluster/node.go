@@ -12,6 +12,8 @@ type NodeActions interface {
 	getNumStatus() int8
 	getStatus() string
 	sendMessage(msg string, receiverAddress string)
+	receiveMessage()
+	printInfo()
 }
 
 // Node is a node of the cluster
@@ -24,11 +26,12 @@ type Node struct {
 }
 
 // NewNode creates a new Node object
-func NewNode(nodeID int, status int8, address string) Node {
-	n := Node{nodeID, status, address, []int{}, []string{}}
+func NewNode(address string) Node {
+	n := Node{0, 0, address, []int{}, []string{}}
 
 	fmt.Println("listening at (tcp)", address)
 
+	go n.receiveMessage()
 	return n
 }
 
@@ -67,7 +70,7 @@ func (n Node) sendMessage(msg string, receiverAddress string) {
 	fmt.Println(string(buf[:readResp]))
 }
 
-func (n Node) receiveMessage(msg string, senderAddress string) {
+func (n Node) receiveMessage() {
 	listener := n.createLocalListener()
 	defer listener.Close()
 
@@ -132,4 +135,12 @@ func handleConnection(conn *net.TCPConn) {
 		fmt.Println("warning: not all data sent to client")
 		return
 	}
+
+	fmt.Println(buf)
+}
+
+func (n Node) printInfo() {
+	fmt.Printf("Node {%v}\n", n.NodeID)
+	fmt.Printf("running at %v\n", n.NodeAddress)
+	fmt.Printf("has following peers: %v\n", n.PeersAddresses)
 }
