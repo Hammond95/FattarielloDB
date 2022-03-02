@@ -5,12 +5,13 @@ import (
 	"net"
 	"os"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 // NodeActions define what a node can do
 type NodeActions interface {
-	getId() int
-	getNumStatus() int8
+	getId() string
 	getStatus() string
 	sendMessage(msg string, receiverAddress string)
 	receiveMessage()
@@ -20,16 +21,17 @@ type NodeActions interface {
 
 // Node is a node of the cluster
 type Node struct {
-	NodeID         int
+	NodeID         string
 	NodeStatus     int8
 	NodeAddress    string
-	PeersID        []int
+	PeersID        []string
 	PeersAddresses []string
 }
 
 // NewNode creates a new Node object
 func NewNode(address string) Node {
-	n := Node{0, 0, address, []int{}, []string{}}
+	id := uuid.New()
+	n := Node{id.String(), 0, address, []string{}, []string{}}
 	return n
 }
 
