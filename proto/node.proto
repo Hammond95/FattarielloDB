@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/Hammond95/FattarielloDB/proto";
+//option java_multiple_files = true;
+//option java_package = "dev.deluca.martin.fattariellodb";
+//option java_outer_classname = "FattarielloDB";
+
+message EmptyRequest {}
+
+message NodeInfos {
+  string NodeID = 1;
+  enum NodeState {
+    STARTING = 0;
+    PENDING = 1;
+    JOINING = 2;
+    RUNNING = 3;
+    LEAVING = 4;
+    DEAD = 5;
+  }
+  NodeState NodeStatus = 2;
+	string NodeAddress = 3;
+	repeated string PeersID = 4;
+	repeated string PeersAddresses = 5;
+}
+
+// Interface exported by the server.
+service Node {
+  // Obtains the Node Id
+  rpc getInfo(EmptyRequest) returns (NodeInfos);
+
+  // Obtains the Node Status
+  //rpc getStatus(Request) returns (Node) {}
+}
