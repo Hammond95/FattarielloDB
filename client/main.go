@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 
+	v1 "github.com/Hammond95/FattarielloDB/client/v1"
 	"github.com/Hammond95/FattarielloDB/proto"
 	"github.com/hashicorp/go-hclog"
 )
@@ -31,20 +31,7 @@ func main() {
 	client := proto.NewNodeClient(conn)
 
 	g := gin.Default()
-	g.GET("/info", func(ctx *gin.Context) {
-		req := &proto.EmptyRequest{}
-		if response, err := client.GetInfo(ctx, req); err == nil {
-			ctx.JSON(http.StatusOK, gin.H{
-				"NodeID":         fmt.Sprint(response.NodeID),
-				"NodeStatus":     fmt.Sprint(response.NodeStatus.Enum()),
-				"NodeAddress":    fmt.Sprint(response.NodeAddress),
-				"PeersID":        fmt.Sprint(response.PeersID),
-				"PeersAddresses": fmt.Sprint(response.PeersAddresses),
-			})
-		} else {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
-	})
+	v1.ApplyRouteGroupDefinition(g, client)
 
 	if err := g.Run(":8080"); err != nil {
 		log.Error("Failed to run server: %v", err)

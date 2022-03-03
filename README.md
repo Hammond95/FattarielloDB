@@ -1,7 +1,6 @@
 # FattarielloDB
 a cluster db for your fattariellis
 
-
 ## build
 ```
 go build -a -installsuffix cgo -ldflags '-w -extldflags "-static"' -o ./bin/client_run ./client/
