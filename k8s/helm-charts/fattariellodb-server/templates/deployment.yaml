@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: '{{.Release.Name}}'
+  labels:
+    app: fattariello-db-server
+spec:
+  selector:
+    matchLabels:
+      octopusexport: OctopusExport
+  replicas: '{{.Values.replicas}}'
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: fattariello-db-server
+        octopusexport: OctopusExport
+    spec:
+      volumes:
+        - name: fattariello-db-server-pvc
+          persistentVolumeClaim:
+            claimName: '{{.Release.Name}}-fattariello-db-server-pvc'
+      containers:
+        - name: fattariellodb-server
+          image: 'mdelucadev/fattariellodb-server:20220304144102'
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: grpc
+              containerPort: 8888
+              protocol: TCP
+          volumeMounts:
+            - name: fattariello-db-server-pvc
+              mountPath: /mnt
+              subPath: /db
+          securityContext:
+            runAsGroup: ''
+            runAsNonRoot: true
+      serviceAccountName: fattariello-db-server-sa
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - web
+                topologyKey: kubernetes.io/hostname
