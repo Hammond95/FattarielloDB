@@ -1,14 +1,16 @@
+{{- if eq .Values.releaseType "StatefulSet" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: '{{.Release.Name}}'
+  name: "{{.Release.Name}}"
   labels:
     app: fattariello-db-server
 spec:
+  serviceName: "{{ .Release.Name }}-fattariello-db-server"
   selector:
     matchLabels:
-      octopusexport: OctopusExport
-  replicas: '{{.Values.replicas}}'
+      app: fattariello-db-server
+  replicas: {{.Values.replicas}}
   updateStrategy:
     type: RollingUpdate
   podManagementPolicy: OrderedReady
@@ -16,7 +18,6 @@ spec:
     metadata:
       labels:
         app: fattariello-db-server
-        octopusexport: OctopusExport
     spec:
       volumes:
         - name: fattariello-db-server-pvc
@@ -24,7 +25,7 @@ spec:
             claimName: '{{.Release.Name}}-fattariello-db-server-pvc'
       containers:
         - name: fattariellodb-server
-          image: 'mdelucadev/fattariellodb-server:20220304144102'
+          image: {{ .Values.image }}
           imagePullPolicy: IfNotPresent
           ports:
             - name: grpc
@@ -34,9 +35,9 @@ spec:
             - name: fattariello-db-server-pvc
               mountPath: /mnt
               subPath: /db
-          securityContext:
-            runAsGroup: ''
-            runAsNonRoot: true
+          #securityContext:
+          #  runAsGroup: 999
+          #  runAsNonRoot: true
       serviceAccountName: fattariello-db-server-sa
       affinity:
         podAntiAffinity:
@@ -50,3 +51,4 @@ spec:
                       values:
                         - web
                 topologyKey: kubernetes.io/hostname
+{{- end }}

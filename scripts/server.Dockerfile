@@ -38,7 +38,7 @@ FROM scratch
 
 ENV PATH="/"
 
-ARG SERVER_ADDRESS=":8888"
+ENV SERVER_ADDRESS=":8888"
 
 COPY --from=builder /fattarielloServer /fattarielloServer
 COPY --from=builder /temp /tmp
