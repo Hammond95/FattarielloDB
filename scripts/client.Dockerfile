@@ -38,11 +38,9 @@ FROM scratch
 
 ENV PATH="/"
 
-ENV SERVER_ADDRESS=":8888"
-
 COPY --from=builder /fattarielloClient /fattarielloClient
 COPY --from=builder /temp /tmp
 #COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 USER $UID
-CMD ["/fattarielloClient", "${SERVER_ADDRESS}"]
+CMD ["/fattarielloClient"]

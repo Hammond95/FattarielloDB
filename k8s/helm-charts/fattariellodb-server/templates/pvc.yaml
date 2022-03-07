@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{.Release.Name}}-fattariello-db-server-pvc
 spec:
-  storageClassName: manual
+  storageClassName: standard
   accessModes:
     - ReadWriteOnce
   resources:

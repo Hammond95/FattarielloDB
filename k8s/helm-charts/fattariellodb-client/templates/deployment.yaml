@@ -1,14 +1,13 @@
-{{- if eq .Values.releaseType "Deployment" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: '{{.Release.Name}}'
   labels:
-    app: fattariello-db-server
+    app: fattariello-db-client
 spec:
   selector:
     matchLabels:
-      app: fattariello-db-server
+      app: fattariello-db-client
   replicas: {{.Values.replicas}}
   strategy:
     type: RollingUpdate
@@ -17,33 +16,25 @@ spec:
   template:
     metadata:
       labels:
-        app: fattariello-db-server
+        app: fattariello-db-client
     spec:
-      volumes:
-        - name: fattariello-db-server-pvc
-          persistentVolumeClaim:
-            claimName: '{{.Release.Name}}-fattariello-db-server-pvc'
       containers:
-        - name: fattariellodb-server
+        - name: fattariellodb-client
           image: {{ .Values.image }}
           imagePullPolicy: IfNotPresent
           env:
             - name: SERVER_ADDRESS
               value: "{{ .Values.envValues.serverAddress }}"
-          command: ["/fattarielloServer"]
+          command: ["/fattarielloClient"]
           args: ["$(SERVER_ADDRESS)"]
           ports:
-            - name: grpc
-              containerPort: {{ .Values.serverPort }}
+            - name: http
+              containerPort: 8080
               protocol: TCP
-          volumeMounts:
-            - name: fattariello-db-server-pvc
-              mountPath: /mnt
-              subPath: db/
           #securityContext:
           #  runAsGroup: 999
           #  runAsNonRoot: true
-      serviceAccountName: fattariello-db-server-sa
+      serviceAccountName: fattariello-db-client-sa
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -56,4 +47,3 @@ spec:
                       values:
                         - web
                 topologyKey: kubernetes.io/hostname
-{{- end }}

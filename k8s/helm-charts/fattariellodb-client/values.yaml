@@ -1,0 +1,7 @@
+replicas: 1
+serverPort: 8888
+
+image: "mdelucadev/fattariellodb-client:20220307172224"
+
+envValues:
+  serverAddress: "fattariellodb-fattariello-db-server.default.svc.cluster.local:8888"
