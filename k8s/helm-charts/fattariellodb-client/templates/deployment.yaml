@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: '{{.Release.Name}}'
+  labels:
+    app: fattariello-db-client
+spec:
+  selector:
+    matchLabels:
+      app: fattariello-db-client
+  replicas: {{.Values.replicas}}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: fattariello-db-client
+    spec:
+      containers:
+        - name: fattariellodb-client
+          image: {{ .Values.image }}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SERVER_ADDRESS
+              value: "{{ .Values.envValues.serverAddress }}"
+          command: ["/fattarielloClient"]
+          args: ["$(SERVER_ADDRESS)"]
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          #securityContext:
+          #  runAsGroup: 999
+          #  runAsNonRoot: true
+      serviceAccountName: fattariello-db-client-sa
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - web
+                topologyKey: kubernetes.io/hostname

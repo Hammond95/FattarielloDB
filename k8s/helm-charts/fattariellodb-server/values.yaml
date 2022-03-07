@@ -1,0 +1,9 @@
+replicas: 1
+serverPort: 8888
+
+releaseType: "Deployment"
+
+image: "mdelucadev/fattariellodb-server:20220307171729"
+
+envValues:
+  serverAddress: ":8888"

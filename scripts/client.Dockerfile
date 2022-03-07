@@ -1,8 +1,6 @@
 # Build the manager binary
 FROM golang:1.15 as builder
 
-WORKDIR /
-
 # add safe user
 ARG UNAME=myuser
 ARG UID=1000
@@ -14,13 +12,19 @@ ENV GO111MODULE=on \
 	GOARCH=amd64 \
 	GOOS=linux
 
+RUN mkdir /app
+WORKDIR /app
+
 # Copy the Go Modules manifests
 COPY go.mod go.mod
 COPY go.sum go.sum
 RUN go mod download
-COPY . .
+COPY proto/ proto/
+COPY client/ client/
 
-RUN go build -a -installsuffix cgo -ldflags '-w -extldflags "-static"' -o /myapp
+
+RUN ls -la -R /app
+RUN go build -o /fattarielloClient -a -installsuffix cgo -ldflags '-w -extldflags "-static"' /app/client
 
 RUN mkdir /temp && \
     chown $UID /temp && \
@@ -34,9 +38,9 @@ FROM scratch
 
 ENV PATH="/"
 
-COPY --from=builder /myapp /FattarielloDB
+COPY --from=builder /fattarielloClient /fattarielloClient
 COPY --from=builder /temp /tmp
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+#COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 USER $UID
-CMD ["main"]
+CMD ["/fattarielloClient"]
