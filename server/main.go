@@ -15,8 +15,7 @@ import (
 
 	"github.com/Hammond95/FattarielloDB/proto"
 	"github.com/Hammond95/FattarielloDB/server/cluster"
-	raft "github.com/Hammond95/FattarielloDB/server/cluster/raft"
-	//"github.com/Hammond95/FattarielloDB/server/application"
+	app "github.com/Hammond95/FattarielloDB/server/cluster/application"
 )
 
 var (
@@ -47,9 +46,9 @@ func main() {
 	log.Info(fmt.Sprintf("Created listener at %v.", *address))
 
 	raftId := uuid.New()
-	fattarielloFSM := &fattariello{}
+	fattarielloFSM := &app.fattariello{}
 
-	r, tm, err := raft.NewRaft(ctx, raftId, *address, fattarielloFSM)
+	r, tm, err := NewRaft(ctx, raftId, *address, fattarielloFSM)
 	if err != nil {
 		log.Error("failed to start raft: %v", err)
 		os.Exit(1)
