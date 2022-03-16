@@ -19,8 +19,15 @@ func NewRaft(ctx context.Context, myID, myAddress string, fsm raft.FSM) (*raft.R
 	c.LocalID = raft.ServerID(myID)
 
 	raftDir := "/tmp"
-
 	baseDir := filepath.Join(raftDir, myID)
+
+	fmt.Printf("BaseDir is %v\n", baseDir)
+
+	if _, err := os.Stat(baseDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(baseDir, os.ModePerm); err != nil {
+			panic(err)
+		}
+	}
 
 	ldb, err := boltdb.NewBoltStore(filepath.Join(baseDir, "logs.dat"))
 	if err != nil {

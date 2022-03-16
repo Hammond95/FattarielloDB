@@ -15,7 +15,6 @@ import (
 
 	"github.com/Hammond95/FattarielloDB/proto"
 	"github.com/Hammond95/FattarielloDB/server/cluster"
-	app "github.com/Hammond95/FattarielloDB/server/cluster/application"
 )
 
 var (
@@ -46,25 +45,33 @@ func main() {
 	log.Info(fmt.Sprintf("Created listener at %v.", *address))
 
 	raftId := uuid.New()
-	fattarielloFSM := &app.fattariello{}
 
-	r, tm, err := NewRaft(ctx, raftId, *address, fattarielloFSM)
+	// create an instance of the Fattariello server
+	server := cluster.NewFattarielloServer(raftId.String(), *address, log)
+	log.Info("Created FattarielloServer.")
+	
+	fattarielloFSM := &{FattarielloDB}
+
+	raftDoh, tm, err := cluster.NewRaft(ctx, raftId.String(), *address, fattarielloFSM)
 	if err != nil {
 		log.Error("failed to start raft: %v", err)
 		os.Exit(1)
 	}
 
+	fmt.Printf("RAFT OBJ: %v, TransportManager: %v", raftDoh, tm)
+
 	// create a new gRPC server, use WithInsecure to allow http connections
 	grpcServer := grpc.NewServer()
 	log.Info("Created gRPC Server.")
 
-	// create an instance of the Node server
-	server := cluster.NewNodeServer(*address, log)
-	log.Info("Created NodeServer.")
-
 	// register the Node Server
-	proto.RegisterNodeServer(grpcServer, server)
-	log.Info("Registered NodeServer.")
+	proto.RegisterFattarielloServer(
+		grpcServer,
+		&RpcInterface{
+			fattarielloServer: server,
+			raft:              raftDoh,
+		})
+	log.Info("Registered Fattariello Server.")
 
 	// register the reflection service which allows clients to determine the methods
 	// for this gRPC service
