@@ -13,6 +13,10 @@ message AckResponse {
   string AckMessage = 1;
 }
 
+message JSONResponse {
+  string Body = 1;
+}
+
 message SendMessageRequest {
   bytes Message = 1;
   string DestinationNodeAddress = 2;
@@ -50,6 +54,8 @@ message NodeInfos {
 service Fattariello {
   // Returns the Node Infos
   rpc getInfo(EmptyRequest) returns (NodeInfos);
+
+  rpc raftStats(EmptyRequest) returns (JSONResponse);
 
   rpc sendMessage(SendMessageRequest) returns (AckResponse);
 

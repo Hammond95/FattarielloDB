@@ -28,7 +28,7 @@ func main() {
 		panic(err)
 	}
 
-	client := proto.NewNodeClient(conn)
+	client := proto.NewFattarielloClient(conn)
 
 	g := gin.Default()
 	v1.ApplyRouteGroupDefinition(g, client)

@@ -14,7 +14,6 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	"github.com/Hammond95/FattarielloDB/proto"
-	"github.com/Hammond95/FattarielloDB/server/cluster"
 )
 
 var (
@@ -47,12 +46,12 @@ func main() {
 	raftId := uuid.New()
 
 	// create an instance of the Fattariello server
-	server := cluster.NewFattarielloServer(raftId.String(), *address, log)
+	server := NewFattarielloServer(raftId.String(), *address, log)
 	log.Info("Created FattarielloServer.")
-	
-	fattarielloFSM := &{FattarielloDB}
 
-	raftDoh, tm, err := cluster.NewRaft(ctx, raftId.String(), *address, fattarielloFSM)
+	fattarielloFSM := &FattarielloDB{}
+
+	raftDoh, tm, err := NewRaft(ctx, raftId.String(), *address, fattarielloFSM)
 	if err != nil {
 		log.Error("failed to start raft: %v", err)
 		os.Exit(1)

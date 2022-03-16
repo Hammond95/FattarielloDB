@@ -1,4 +1,4 @@
-package cluster
+package main
 
 import (
 	"context"
@@ -89,6 +89,22 @@ func (s *snapshot) Persist(sink raft.SnapshotSink) error {
 }
 
 func (s *snapshot) Release() {
+}
+
+func (server *FattarielloServer) UpdateNodeStatus(raft *raft.Raft) error {
+	raftState := raft.State().String()
+	switch raftState {
+	case "Shutdown":
+		server.NodeStatus = proto.NodeInfos_NodeState_value["LEAVING"]
+	case "Unknown":
+		server.NodeStatus = proto.NodeInfos_NodeState_value["DEAD"]
+	case "Follower":
+	case "Candidate":
+	case "Leader":
+		server.NodeStatus = proto.NodeInfos_NodeState_value["RUNNING"]
+	}
+
+	return nil
 }
 
 func (server *FattarielloServer) GetInfo(ctx context.Context, r *proto.EmptyRequest) (*proto.NodeInfos, error) {

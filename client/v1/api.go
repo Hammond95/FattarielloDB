@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -9,7 +10,7 @@ import (
 	"github.com/Hammond95/FattarielloDB/proto"
 )
 
-func ApplyRouteGroupDefinition(router *gin.Engine, client proto.NodeClient) {
+func ApplyRouteGroupDefinition(router *gin.Engine, client proto.FattarielloClient) {
 	apiV1 := *router.Group("/v1")
 
 	apiV1.GET("/info", func(ctx *gin.Context) {
@@ -52,6 +53,20 @@ func ApplyRouteGroupDefinition(router *gin.Engine, client proto.NodeClient) {
 			} else {
 				ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			}
+		}
+	})
+
+	raftGroup := *apiV1.Group("/raft")
+	raftGroup.GET("/stats", func(ctx *gin.Context) {
+		var stats RaftStats
+
+		req := &proto.EmptyRequest{}
+
+		if response, err := client.RaftStats(ctx, req); err == nil {
+			json.Unmarshal([]byte(response.Body), &stats)
+			ctx.JSON(http.StatusOK, stats)
+		} else {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
 	})
 }

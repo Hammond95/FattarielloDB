@@ -12,5 +12,5 @@ go build -a -installsuffix cgo -ldflags '-w -extldflags "-static"' -o ./bin/serv
 protoc \
     --go_out=plugins=grpc:. \
     --go_opt=paths=source_relative \
-    ./proto/node.proto
+    ./proto/fattariello.proto
 ```
