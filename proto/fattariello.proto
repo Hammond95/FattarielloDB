@@ -50,12 +50,21 @@ message NodeInfos {
   repeated string PeersAddresses = 5;
 }
 
+message NodeMinimalInfos {
+  string NodeID = 1;
+  string NodeAddress = 2;
+}
+
 // Interface exported by the server.
 service Fattariello {
   // Returns the Node Infos
   rpc getInfo(EmptyRequest) returns (NodeInfos);
 
   rpc raftStats(EmptyRequest) returns (JSONResponse);
+
+  rpc raftJoin(NodeMinimalInfos) returns (AckResponse);
+
+  rpc raftRemove(NodeMinimalInfos) returns (AckResponse);
 
   rpc sendMessage(SendMessageRequest) returns (AckResponse);
 

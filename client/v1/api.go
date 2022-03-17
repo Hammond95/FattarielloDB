@@ -69,4 +69,58 @@ func ApplyRouteGroupDefinition(router *gin.Engine, client proto.FattarielloClien
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
 	})
+
+	raftGroup.POST("/join", func(ctx *gin.Context) {
+		var json struct {
+			NodeID      string `json:"nodeID" binding:"required"`
+			NodeAddress string `json:"nodeAddress" binding:"required"`
+		}
+
+		if ctx.Bind(&json) == nil {
+			response, err := client.RaftJoin(
+				ctx,
+				&proto.NodeMinimalInfos{
+					NodeID:      json.NodeID,
+					NodeAddress: json.NodeAddress,
+				},
+			)
+			if err == nil {
+				ctx.JSON(
+					http.StatusAccepted,
+					gin.H{
+						"AckMessage": response.AckMessage,
+					},
+				)
+			} else {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			}
+		}
+	})
+
+	raftGroup.POST("/remove", func(ctx *gin.Context) {
+		var json struct {
+			NodeID      string `json:"nodeID" binding:"required"`
+			NodeAddress string `json:"nodeAddress" binding:"required"`
+		}
+
+		if ctx.Bind(&json) == nil {
+			response, err := client.RaftRemove(
+				ctx,
+				&proto.NodeMinimalInfos{
+					NodeID:      json.NodeID,
+					NodeAddress: json.NodeAddress,
+				},
+			)
+			if err == nil {
+				ctx.JSON(
+					http.StatusAccepted,
+					gin.H{
+						"AckMessage": response.AckMessage,
+					},
+				)
+			} else {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			}
+		}
+	})
 }

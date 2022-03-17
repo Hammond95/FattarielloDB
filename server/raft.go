@@ -70,3 +70,44 @@ func NewRaft(ctx context.Context, myID, myAddress string, fsm raft.FSM) (*raft.R
 
 	return r, tm, nil
 }
+
+func Join(x raft.Raft, nodeID string, nodeAddress string) error {
+	if x.State() != raft.Leader {
+		return fmt.Errorf("This node is not a Leader.")
+	}
+
+	configFuture := x.GetConfiguration()
+	if err := configFuture.Error(); err != nil {
+		return fmt.Errorf("Failed to get raft configuration: %s", err.Error())
+	}
+
+	// This must be run on the leader or it will fail.
+	f := x.AddVoter(
+		raft.ServerID(nodeID),
+		raft.ServerAddress(nodeAddress), 0, 0,
+	)
+
+	if f.Error() != nil {
+		return fmt.Errorf("Failed to add voter: %s", f.Error().Error())
+	}
+
+	return nil
+}
+
+func Remove(x raft.Raft, nodeID string) error {
+	if x.State() != raft.Leader {
+		return fmt.Errorf("This node is not a Leader.")
+	}
+
+	/*configFuture := x.GetConfiguration()
+	if err := configFuture.Error(); err != nil {
+		return fmt.Errorf("Failed to get raft configuration: %s", err.Error())
+	}*/
+
+	future := x.RemoveServer(raft.ServerID(nodeID), 0, 0)
+	if err := future.Error(); err != nil {
+		return fmt.Errorf("Failed to remove existing node %s: %s", nodeID, err.Error())
+	}
+
+	return nil
+}
