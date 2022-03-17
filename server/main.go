@@ -18,6 +18,7 @@ import (
 
 var (
 	address = flag.String("address", ":8888", "TCP host+port for this node")
+	//raftAddress = flag.String("raftAddress", ":7777", "TCP host+port for the raft server.")
 	//raftDir       = flag.String("raft_data_dir", "data/", "Raft data dir")
 	//raftBootstrap = flag.Bool("raft_bootstrap", false, "Whether to bootstrap the Raft cluster")
 )
@@ -42,6 +43,14 @@ func main() {
 		panic(err)
 	}
 	log.Info(fmt.Sprintf("Created listener at %v.", *address))
+
+	//raftListener, err := net.Listen("tcp", *raftAddress)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//log.Info(fmt.Sprintf("Created raftListener at %v.", *raftAddress))
+
+	//fmt.Printf("raftListener = %v\n", raftListener)
 
 	raftId := uuid.New()
 
@@ -71,6 +80,11 @@ func main() {
 			raft:              raftDoh,
 		})
 	log.Info("Registered Fattariello Server.")
+
+	tm.Register(grpcServer)
+	log.Info("Registered TransportManager to gRPC Server.")
+	//leaderhealth.Setup(r, s, []string{"Example"})
+	// == grpcServer.RegisterService(&raftDoh, interface for raft with all gRPC methods)
 
 	// register the reflection service which allows clients to determine the methods
 	// for this gRPC service

@@ -151,13 +151,3 @@ func (server *FattarielloServer) ReceiveMessage(ctx context.Context, r *proto.Re
 
 	return &proto.AckResponse{AckMessage: ackMessage}, err
 }
-
-// NodeActions define what a node can do
-//type NodeActions interface {
-//	getId() string
-//	getStatus() string
-//	sendMessage(msg string, receiverAddress string)
-//	receiveMessage()
-//	PrintInfo()
-//	Run()
-//}
