@@ -71,7 +71,7 @@ func NewRaft(ctx context.Context, myID, myAddress string, fsm raft.FSM) (*raft.R
 	return r, tm, nil
 }
 
-func Join(x raft.Raft, nodeID string, nodeAddress string) error {
+func Join(x *raft.Raft, nodeID string, nodeAddress string) error {
 	if x.State() != raft.Leader {
 		return fmt.Errorf("This node is not a Leader.")
 	}
@@ -94,7 +94,7 @@ func Join(x raft.Raft, nodeID string, nodeAddress string) error {
 	return nil
 }
 
-func Remove(x raft.Raft, nodeID string) error {
+func Remove(x *raft.Raft, nodeID string) error {
 	if x.State() != raft.Leader {
 		return fmt.Errorf("This node is not a Leader.")
 	}

@@ -37,13 +37,13 @@ func (x RpcInterface) RaftStats(ctx context.Context, r *proto.EmptyRequest) (*pr
 }
 
 func (x RpcInterface) RaftJoin(ctx context.Context, r *proto.NodeMinimalInfos) (*proto.AckResponse, error) {
-	err := Join(*x.raft, r.NodeID, r.NodeAddress)
+	err := Join(x.raft, r.NodeID, r.NodeAddress)
 	ackMessage := fmt.Sprintf("Node %s running at %s, successfully joined to raft cluster!", r.NodeID, r.NodeAddress)
 	return &proto.AckResponse{AckMessage: ackMessage}, err
 }
 
 func (x RpcInterface) RaftRemove(ctx context.Context, r *proto.NodeMinimalInfos) (*proto.AckResponse, error) {
-	err := Remove(*x.raft, r.NodeID)
+	err := Remove(x.raft, r.NodeID)
 	ackMessage := fmt.Sprintf("Node %s at %s, Removed from the raft cluster!", r.NodeID, r.NodeAddress)
 	return &proto.AckResponse{AckMessage: ackMessage}, err
 }
